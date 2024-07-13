@@ -1,0 +1,11 @@
+cd generate-db
+npm run dev
+
+--- gå till localhost länked som visas
+
+--- öppna nytt terminal fönster
+
+cd local-server
+node server.mjs
+
+--- klar
