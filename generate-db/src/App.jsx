@@ -264,6 +264,7 @@ function App() {
       setProductData(null);
       setProductUrl("");
       setSucessMessage("Lyckades lägga produkten i databasen");
+      location.reload();
     } catch (error) {
       console.error("An error occurred:", error);
     }
