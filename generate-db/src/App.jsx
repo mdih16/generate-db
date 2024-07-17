@@ -175,18 +175,27 @@ function App() {
         .map((item) => normalizeSpaces(item));
       const ingredientOrders = ingredientsArray.map((_, index) => index + 1);
       const newIngredients = [];
+      const ingredientOrderMap = [];
 
-      // Collect existing ingredient IDs
-      for (const item of ingredientsArray) {
-        const normalizedItem = item.toLowerCase();
+      // Collect existing ingredient IDs and prepare new ingredients
+      for (let i = 0; i < ingredientsArray.length; i++) {
+        const normalizedItem = ingredientsArray[i].toLowerCase();
         const existingIngredient = ingredients.find(
           (ing) => ing.ingredientname.toLowerCase() === normalizedItem
         );
 
         if (existingIngredient) {
           ingredientIds.push(existingIngredient.ingredient_id);
+          ingredientOrderMap.push({
+            ingredient_id: existingIngredient.ingredient_id,
+            order: ingredientOrders[i],
+          });
         } else {
-          newIngredients.push({ ingredientname: item });
+          newIngredients.push({ ingredientname: ingredientsArray[i] });
+          ingredientOrderMap.push({
+            ingredient_name: ingredientsArray[i],
+            order: ingredientOrders[i],
+          });
         }
       }
 
@@ -200,24 +209,28 @@ function App() {
             "Error inserting new ingredients:",
             newIngredientsInsertError
           );
+          return;
         } else {
           console.log("Inserted new ingredients:", insertedIngredients);
 
-          // Add the newly inserted ingredient IDs to the ingredientIds array
+          // Add the newly inserted ingredient IDs to the ingredientOrderMap
           for (const newIngredient of insertedIngredients) {
-            ingredientIds.push(newIngredient.ingredient_id);
+            const item = ingredientOrderMap.find(
+              (entry) => entry.ingredient_name === newIngredient.ingredientname
+            );
+            if (item) {
+              item.ingredient_id = newIngredient.ingredient_id;
+              ingredientIds.push(newIngredient.ingredient_id);
+            }
           }
         }
       }
 
-      const productIngredients = [];
-      for (let i = 0; i < ingredientIds.length; i++) {
-        productIngredients.push({
-          product_id: product.product_id,
-          ingredient_id: ingredientIds[i],
-          order: ingredientOrders[i],
-        });
-      }
+      const productIngredients = ingredientOrderMap.map((item) => ({
+        product_id: product.product_id,
+        ingredient_id: item.ingredient_id,
+        order: item.order,
+      }));
 
       const {
         data: insertedProductIngredients,
@@ -232,6 +245,7 @@ function App() {
           "Error inserting product ingredients:",
           productIngredientsInsertError
         );
+        return;
       } else {
         console.log(
           "Inserted product ingredients:",
