@@ -173,6 +173,7 @@ function App() {
       const ingredientsArray = text
         .split(",")
         .map((item) => normalizeSpaces(item));
+      const ingredientOrders = ingredientsArray.map((_, index) => index + 1);
       const newIngredients = [];
 
       // Collect existing ingredient IDs
@@ -210,10 +211,11 @@ function App() {
       }
 
       const productIngredients = [];
-      for (const ingredientId of ingredientIds) {
+      for (let i = 0; i < ingredientIds.length; i++) {
         productIngredients.push({
           product_id: product.product_id,
-          ingredient_id: ingredientId,
+          ingredient_id: ingredientIds[i],
+          order: ingredientOrders[i],
         });
       }
 
